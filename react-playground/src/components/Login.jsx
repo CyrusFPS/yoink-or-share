@@ -1,10 +1,11 @@
 import { Redirect } from 'react-router-dom';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
+import UserContext from '../contexts/user';
 import '../App.css';
 
 const Login = () => {
-  const [isAuth, setIsAuth] = useState(false);
+  const { user, setUser } = useContext(UserContext);
 
   useEffect(() => {
     // Async function to call API cause useEffect doesn't allow async
@@ -13,7 +14,7 @@ const Login = () => {
       // Check if user is authenticated with credentials (cookie/session)
       const isUserAuthed = await axios.get(userAuthURL, { withCredentials: true });
       // Set the authentication status on frontend to what it is on backend
-      setIsAuth(isUserAuthed.data.auth);
+      setUser({ ...isUserAuthed.data.user, auth: isUserAuthed.data.auth });
     }
 
     // Call the function! 
@@ -32,7 +33,7 @@ const Login = () => {
     if (newWindow) {
       timer = setInterval(() => {
         if (newWindow.closed) {
-          setIsAuth(true);
+          setUser({ ...user, auth: true });
           if (timer) clearInterval(timer);
         }
       }, 500);
@@ -40,7 +41,7 @@ const Login = () => {
   }
 
   // If the user ever authenticates, whether via login or cookies, redirect them home
-  if (isAuth) return <Redirect to="/home" />
+  if (user.auth) return <Redirect to="/home" />
 
   return (
     <div className="App">
