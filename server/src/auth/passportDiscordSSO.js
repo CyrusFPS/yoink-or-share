@@ -4,16 +4,19 @@ const User = require('../models/user');
 
 // Serialize user function
 passport.serializeUser((user, done) => {
+  // Basically packaging the user id and shipping it off for later
   done(null, user.id)
 });
 
 // Deserialize user function
 passport.deserializeUser(async (id, done) => {
+  // Someones giving us our package back and now we need to find the corresponding user with the given id
   try {
     const user = await User.findById(id);
+    // Found the user, return it and keep moving
     done(null, user);
   } catch (error) {
-    console.log(`Error deserializing: ${error}`);
+    // ERROR THE WORLD IS MELTING AGAIN
     done(error, null);
   }
 });
@@ -39,9 +42,9 @@ const checkForUser = async (profile) => {
 
 passport.use(
   new DiscordStrategy({
-    callbackURL: 'http://localhost:4000/api/v1/auth/discord/callback',
-    clientID: process.env.DISCORD_CLIENT_ID,
-    clientSecret: process.env.DISCORD_CLIENT_SECRET,
+    callbackURL: 'http://localhost:4000/api/v1/auth/discord/callback', // Where discord should go after a user authenticates
+    clientID: process.env.DISCORD_CLIENT_ID, // Discord client id
+    clientSecret: process.env.DISCORD_CLIENT_SECRET, // Discord client secret
   }, async (accessToken, refreshToken, profile, done) => {
     // Passport callback function
     try {
@@ -53,7 +56,7 @@ passport.use(
       const newUser = await createOneUser(profile);
       done(null, newUser);
     } catch (error) {
-      console.log(`Error signing in: ${error}`);
+      // NOT AGAINNNNN
       done(error, null);
     }
   })

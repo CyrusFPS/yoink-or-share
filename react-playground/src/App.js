@@ -1,15 +1,23 @@
-import './App.css';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import Login from './components/Login';
+import LoginSuccess from './components/LoginSuccess';
+import Home from './components/Home';
 
 function App() {
-  const redirect = () => {
-    window.location.href = 'http://localhost:4000/api/v1/login/discord';
-  }
-
   return (
-    <div className="App">
-      <h1>Welcome to Yoink or Share!</h1>
-      <button onClick={redirect}>Login with Discord</button>
-    </div>
+    <Router>
+      <Switch>
+        <Route path="/login" exact>
+          <Login />
+        </Route>
+        <Route path="/login/success">
+          <LoginSuccess />
+        </Route>
+        <Route path="/home">
+          <Home />
+        </Route>
+      </Switch>
+    </Router>
   );
 }
 
