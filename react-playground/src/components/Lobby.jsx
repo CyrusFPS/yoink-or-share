@@ -1,13 +1,12 @@
-import { Link } from 'react-router-dom';
-import React, { useContext, useEffect, useState } from 'react'
-import axios from 'axios';
-import UserContext from '../contexts/user'
 import { useHistory } from 'react-router';
+import React, { useState, useEffect, useContext } from 'react'
+import axios from 'axios';
+import UserContext from '../contexts/user';
 
-const Home = () => {
+const Lobby = () => {
+  let history = useHistory();
   const { user, setUser } = useContext(UserContext);
   const [loading, setLoading] = useState(true);
-  let history = useHistory();
 
   const checkForAuth = async () => {
     if (user.auth) {
@@ -41,15 +40,28 @@ const Home = () => {
     fetchData(); 
   }, []);
 
+  const createNewRoom = async () => {
+    const roomsCreateURL = "http://localhost:4000/api/v1/rooms/create"
+    const result = await axios.post(roomsCreateURL, { user });
+
+    if (!result.data.room) return alert("Unable to create new room. You can't have more than one room open at a time.");
+    setUser({ ...user, room: result.data.room });
+    history.push(`/rooms/${result.data.room._id}`);
+  }
+
+  const joinUserRoom = () => {
+    history.push(`/rooms/${user.room}`)
+  }
+  
   if (!loading && !user.auth && user.auth !== undefined) history.push('/login');
 
   return (
     <div>
-      <h1>Welcome to Yoink or Share! Thanks for signing in.</h1>
-      <a href="http://localhost:4000/api/v1/logout">Logout</a>
-      <Link to="/lobby">Go to rooms</Link>
+      <h1 onClick={() => console.log(user)}>Welcome to the lobby</h1>
+      <button onClick={createNewRoom}>New room</button>
+      { user.room ? <button onClick={joinUserRoom}>Join my room</button> : ""}
     </div>
   )
 }
 
-export default Home
+export default Lobby

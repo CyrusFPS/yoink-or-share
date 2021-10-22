@@ -27,7 +27,8 @@ const createOneUser = async (profile) => {
     discordID: profile.id,
     username: profile.username,
     discriminator: profile.discriminator,
-    email: profile.email
+    email: profile.email,
+    room: null
   }).save();
 
   return newUser;

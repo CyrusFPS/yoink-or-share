@@ -5,16 +5,17 @@ const mongoose = require('mongoose');
 const cookieSession = require('cookie-session');
 require('dotenv').config();
 
-require('./auth/passport'); // Require these two so they load in the app
 require('./auth/passportDiscordSSO');
 
 require('./models/user'); // Same with this I think
+require('./models/room');
+
+require('./api/game');
 
 const api = require('./api'); // Get our api
 const passport = require('passport'); // We're gonna need passport
 
 const app = express(); // Setup our express app and our port from the .env file
-const port = process.env.PORT;
 
 // Middleware
 app.use(morgan('dev')); // Morgan for console messages on reqs

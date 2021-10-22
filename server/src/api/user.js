@@ -9,4 +9,9 @@ router.get('/auth/user', isUserAuthenticated, (req, res) => {
   res.json({ user: req.user, auth: true });
 });
 
+router.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect('http://localhost:3000/login');
+});
+
 module.exports = router;

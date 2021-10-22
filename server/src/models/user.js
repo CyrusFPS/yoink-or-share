@@ -5,7 +5,8 @@ const userSchema = new Schema({
   discordID: Number,
   username: String,
   discriminator: Number,
-  email: String
+  email: String,
+  room: String
 });
 
 const User = mongoose.model('user', userSchema);

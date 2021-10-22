@@ -1,24 +1,44 @@
-import { Redirect } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 import { useEffect, useState, useContext } from 'react';
 import UserContext from '../contexts/user';
 import '../App.css';
 
 const Login = () => {
+  let history = useHistory();
   const { user, setUser } = useContext(UserContext);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Async function to call API cause useEffect doesn't allow async
-    const fetchUserData = async () => {
-      const userAuthURL = "http://localhost:4000/api/v1/auth/user";
-      // Check if user is authenticated with credentials (cookie/session)
-      const isUserAuthed = await axios.get(userAuthURL, { withCredentials: true });
-      // Set the authentication status on frontend to what it is on backend
-      setUser({ ...isUserAuthed.data.user, auth: isUserAuthed.data.auth });
+  const checkForAuth = async () => {
+    if (user.auth) {
+      setLoading(false);
+      return { ...user, auth: true };
     }
 
-    // Call the function! 
-    fetchUserData();
+    try {
+      const userAuthURL = "http://localhost:4000/api/v1/auth/user";
+      
+      const response = await axios.get(userAuthURL, { withCredentials: true });
+        
+      const newUser = { ...response.data.user, auth: true };
+    
+      setLoading(false);
+      return newUser;
+    } catch (error) {
+      const newUser = { auth: false };
+
+      setLoading(false);
+      return newUser;
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const newUser = await checkForAuth();
+      setUser(newUser);
+    }
+
+    fetchData();  
   }, []);
 
   const redirectToDiscordSSO = async () => {
@@ -31,9 +51,10 @@ const Login = () => {
 
     // Timer to check if window is closed, then will redirect
     if (newWindow) {
-      timer = setInterval(() => {
+      timer = setInterval(async () => {
         if (newWindow.closed) {
-          setUser({ ...user, auth: true });
+          const newUser = await checkForAuth();
+          setUser(newUser);
           if (timer) clearInterval(timer);
         }
       }, 500);
@@ -41,7 +62,7 @@ const Login = () => {
   }
 
   // If the user ever authenticates, whether via login or cookies, redirect them home
-  if (user.auth) return <Redirect to="/home" />
+  if (!loading && user.auth) history.push('/home');
 
   return (
     <div className="App">
